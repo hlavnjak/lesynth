@@ -1,0 +1,19 @@
+[package]
+name = "lesynth_rust"
+version = "1.0.0"
+edition = "2021"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+nih_plug = { git = "https://github.com/hlavnjak/nih-plug", branch = "host_triggered_resizing", package = "nih_plug", features = ["vst3"] }
+nih_plug_egui = { git = "https://github.com/hlavnjak/nih-plug", branch = "host_triggered_resizing", package = "nih_plug_egui" }
+egui_plot = "0.31.0"
+log = "0.4"
+env_logger = { version = "0.10", optional = true }
+chrono = { version = "0.4", features = ["serde"], optional = true }
+
+[features]
+default = []
+debug-logging = ["env_logger", "chrono"]
