@@ -1,4 +1,4 @@
-# LeSynth - Fourier Synthesizer VST3 Plugin
+# LeSynth - Fourier
 
 A powerful Fourier synthesizer VST3 audio plugin built in Rust using the nih-plug framework. LeSynth generates harmonic sounds through Fourier synthesis with customizable amplitude and phase curves for each harmonic.
 
