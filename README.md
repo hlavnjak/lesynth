@@ -1,6 +1,6 @@
 # LeSynth - Fourier
 
-A powerful Fourier synthesizer VST3 audio plugin built in Rust using the nih-plug framework. LeSynth generates harmonic sounds through Fourier synthesis with customizable amplitude and phase curves for each harmonic.
+A powerful Fourier synthesizer VST3 audio plugin built in Rust using the nih-plug framework. LeSynth - Fourier generates harmonic sounds through Fourier synthesis with customizable amplitude and phase curves for each harmonic.
 
 ## Features
 
@@ -20,6 +20,19 @@ A powerful Fourier synthesizer VST3 audio plugin built in Rust using the nih-plu
 - **Plugin Formats**: VST3
 - **Visualization**: egui_plot for real-time plotting
 
+## Installation
+
+### Recommended: Use Latest Release
+
+For most users, we recommend downloading the latest pre-built plugin from the [releases page](https://github.com/hlavnjak/lesynth-fourier/releases/). The release notes contain detailed installation instructions for both Linux and Windows platforms.
+
+### Manual Installation (after building)
+
+After building from source, the VST3 plugin will be available in the `target/debug/` or `target/release/` directory. Copy the `.vst3` bundle to your DAW's VST3 plugin directory:
+
+- **Linux**: `~/.vst3/`
+- **Windows**: `%COMMONPROGRAMFILES%\VST3\`
+
 ## Building
 
 ### Debug Build (with logging)
@@ -34,15 +47,9 @@ cargo build --release
 
 The debug build includes comprehensive logging to both stdout and a log file (`lesynth.log` in the system temp directory), while the release build is optimized for performance with no logging overhead.
 
-## Installation
-
-After building, the VST3 plugin will be available in the `target/debug/` or `target/release/` directory. Copy the `.vst3` bundle to your DAW's VST3 plugin directory:
-
-- **Linux**: `~/.vst3/`
-
 ## Usage
 
-1. Load LeSynth in your DAW as a VST3 instrument
+1. Load LeSynthFourier in your DAW as a VST3 instrument
 2. Use the piano keyboard interface or MIDI input to trigger notes
 3. Adjust harmonic parameters using the amplitude and phase controls
 4. View real-time visualization of harmonic content and assembled waveforms
