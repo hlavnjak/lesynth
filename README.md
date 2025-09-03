@@ -12,13 +12,12 @@ A powerful Fourier synthesizer VST3 audio plugin built in Rust using the nih-plu
 - **Cross-Platform**: Works on all platforms supported by nih-plug
 - **Real-time Performance**: Optimized audio processing with background computation
 
-## Technology Stack
+## Demo
 
-- **Language**: Rust
-- **Audio Framework**: [nih-plug](https://github.com/robbert-vdh/nih-plug) (currently using forked version with patches)
-- **GUI Framework**: egui via nih-plug-egui
-- **Plugin Formats**: VST3
-- **Visualization**: egui_plot for real-time plotting
+![LeSynth in Action](assets/lesynth-demo.gif)
+
+Demo GIF file with a better quality can be found in the [releases page](https://github.com/hlavnjak/lesynth-fourier/releases/)
+
 
 ## Installation
 
@@ -46,6 +45,14 @@ cargo build --release
 ```
 
 The debug build includes comprehensive logging to both stdout and a log file (`lesynth.log` in the system temp directory), while the release build is optimized for performance with no logging overhead.
+
+## Technology Stack
+
+- **Language**: Rust
+- **Audio Framework**: [nih-plug](https://github.com/robbert-vdh/nih-plug) (currently using forked version with patches)
+- **GUI Framework**: egui via nih-plug-egui
+- **Plugin Formats**: VST3
+- **Visualization**: egui_plot for real-time plotting
 
 ## Usage
 
