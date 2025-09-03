@@ -1,5 +1,5 @@
 [package]
-name = "lesynth_rust"
+name = "lesynth_fourier"
 version = "1.0.0"
 edition = "2021"
 
