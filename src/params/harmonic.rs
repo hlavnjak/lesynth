@@ -13,7 +13,7 @@
 // limitations under the License.
 
 use nih_plug::prelude::*;
-use super::CurveType;
+use super::{CurveType, GranularityLevel};
 
 /// A single harmonic's complete parameter set.
 /// - amp:     amplitude multiplier
@@ -38,4 +38,8 @@ pub struct HarmonicParam {
     pub sine_curve_amp_phase: FloatParam,
     #[id = "sine_curve_freq_phase"]
     pub sine_curve_freq_phase: FloatParam,
+    #[id = "granularity_amp"]
+    pub granularity_amp: EnumParam<GranularityLevel>,
+    #[id = "granularity_phase"]
+    pub granularity_phase: EnumParam<GranularityLevel>,
 }

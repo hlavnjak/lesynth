@@ -28,6 +28,42 @@ impl CurveType {
     ];
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Enum)]
+pub enum GranularityLevel {
+    #[name = "0.1"]
+    Low,
+    #[name = "0.5"] 
+    Medium,
+    #[name = "1.0"]
+    High,
+}
+
+impl GranularityLevel {
+    pub const VARIANTS: [GranularityLevel; 3] = [
+        GranularityLevel::Low,
+        GranularityLevel::Medium,
+        GranularityLevel::High,
+    ];
+
+    pub fn as_f64(&self) -> f64 {
+        match self {
+            GranularityLevel::Low => 0.1,
+            GranularityLevel::Medium => 0.5,
+            GranularityLevel::High => 1.0,
+        }
+    }
+
+    pub fn as_f32(&self) -> f32 {
+        self.as_f64() as f32
+    }
+}
+
+impl Default for GranularityLevel {
+    fn default() -> Self {
+        GranularityLevel::High
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -57,5 +93,29 @@ mod tests {
         assert_eq!(CurveType::Constant, CurveType::Constant);
         assert_ne!(CurveType::Constant, CurveType::Sine);
         assert_eq!(CurveType::Sine, CurveType::Sine);
+    }
+
+    #[test]
+    fn test_granularity_level_variants() {
+        assert_eq!(GranularityLevel::VARIANTS.len(), 3);
+        assert_eq!(GranularityLevel::VARIANTS[0], GranularityLevel::Low);
+        assert_eq!(GranularityLevel::VARIANTS[1], GranularityLevel::Medium);
+        assert_eq!(GranularityLevel::VARIANTS[2], GranularityLevel::High);
+    }
+
+    #[test]
+    fn test_granularity_level_values() {
+        assert_eq!(GranularityLevel::Low.as_f64(), 0.1);
+        assert_eq!(GranularityLevel::Medium.as_f64(), 0.5);
+        assert_eq!(GranularityLevel::High.as_f64(), 1.0);
+        
+        assert_eq!(GranularityLevel::Low.as_f32(), 0.1);
+        assert_eq!(GranularityLevel::Medium.as_f32(), 0.5);
+        assert_eq!(GranularityLevel::High.as_f32(), 1.0);
+    }
+
+    #[test]
+    fn test_granularity_level_default() {
+        assert_eq!(GranularityLevel::default(), GranularityLevel::High);
     }
 }

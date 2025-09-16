@@ -16,6 +16,6 @@ pub mod curve_type;
 pub mod harmonic;
 pub mod synth_params;
 
-pub use curve_type::CurveType;
+pub use curve_type::{CurveType, GranularityLevel};
 pub use harmonic::HarmonicParam;
 pub use synth_params::LeSynthParams;

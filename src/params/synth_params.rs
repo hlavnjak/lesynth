@@ -17,7 +17,7 @@ use nih_plug::prelude::*;
 use nih_plug_egui::EguiState;
 
 use crate::constants::*;
-use super::{CurveType, HarmonicParam};
+use super::{CurveType, GranularityLevel, HarmonicParam};
 
 #[derive(Params)]
 pub struct LeSynthParams {
@@ -97,6 +97,14 @@ impl Default for LeSynthParams {
                     &format!("Harmonic {} Frequency Of Sine Curve For Phase", idx),
                     default_b,
                     b_range,
+                ),
+                granularity_amp: EnumParam::new(
+                    &format!("Harmonic {} Granularity For Amplitude", idx),
+                    GranularityLevel::default(),
+                ),
+                granularity_phase: EnumParam::new(
+                    &format!("Harmonic {} Granularity For Phase", idx),
+                    GranularityLevel::default(),
                 ),
             }
         });

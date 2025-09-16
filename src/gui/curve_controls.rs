@@ -16,7 +16,7 @@ use std::sync::Arc;
 use nih_plug::prelude::ParamSetter;
 use crate::constants::*;
 use crate::engine::{ChartType, SynthComputeEngine};
-use crate::params::{CurveType, HarmonicParam};
+use crate::params::{CurveType, GranularityLevel, HarmonicParam};
 
 pub fn draw_curve_controls(
     ui: &mut nih_plug_egui::egui::Ui,
@@ -32,28 +32,66 @@ pub fn draw_curve_controls(
     sine_amp_max: f64,
 ) {
     ui.label(format!("{:?}:", chart_type));
-    ui.columns(5, |cols| {
-        let (offset, a, b, curve) = match chart_type {
+    ui.columns(6, |cols| {
+        let (offset, a, b, curve, granularity) = match chart_type {
             ChartType::Amp => (
                 &harmonic.curve_offset_amp,
                 &harmonic.sine_curve_amp_amp,
                 &harmonic.sine_curve_freq_amp,
                 &harmonic.curve_type_amp,
+                &harmonic.granularity_amp,
             ),
             ChartType::Phase => (
                 &harmonic.curve_offset_phase,
                 &harmonic.sine_curve_amp_phase,
                 &harmonic.sine_curve_freq_phase,
                 &harmonic.curve_type_phase,
+                &harmonic.granularity_phase,
             ),
         };
 
-        // Column 0: Offset
+        // Column 0: Granularity Select
+        {
+            let granularity_combo_id = format!("{:?}_granularity_combo_{}", chart_type, idx);
+            nih_plug_egui::egui::ComboBox::from_id_salt(granularity_combo_id)
+                .selected_text(match granularity.value() {
+                    GranularityLevel::Low => "Max: 0.1",
+                    GranularityLevel::Medium => "Max: 0.5", 
+                    GranularityLevel::High => "Max: 1.0",
+                })
+                .show_ui(&mut cols[0], |ui| {
+                    for &variant in GranularityLevel::VARIANTS.iter() {
+                        if ui
+                            .selectable_label(
+                                granularity.value() == variant,
+                                match variant {
+                                    GranularityLevel::Low => "Max: 0.1",
+                                    GranularityLevel::Medium => "Max: 0.5", 
+                                    GranularityLevel::High => "Max: 1.0",
+                                },
+                            )
+                            .clicked()
+                        {
+                            setter.begin_set_parameter(granularity);
+                            setter.set_parameter(granularity, variant);
+                            setter.end_set_parameter(granularity);
+                            params_changed_action();
+                        }
+                    }
+                });
+        }
+
+        // Column 1: Offset
         {
             let param = offset;
             let engine = synth_compute_engine.clone();
             let chart_type_clone = chart_type.clone();
-            let slider = nih_plug_egui::egui::Slider::from_get_set(offset_min..=offset_max, move |new_val| {
+            let granularity_max = granularity.value().as_f64();
+            let actual_max = match chart_type {
+                ChartType::Amp => granularity_max.min(offset_max),
+                ChartType::Phase => offset_max, // Phase doesn't use granularity for range
+            };
+            let slider = nih_plug_egui::egui::Slider::from_get_set(offset_min..=actual_max, move |new_val| {
                 if let Some(v) = new_val {
                     setter.begin_set_parameter(param);
                     setter.set_parameter(param, v as f32);
@@ -65,7 +103,7 @@ pub fn draw_curve_controls(
             })
             .suffix(" Offset");
 
-            let response = cols[0].add(slider);
+            let response = cols[1].add(slider);
             if response.drag_stopped() {
                 match curve.value() {
                     CurveType::Sine => engine.fill_sin_curve(idx, chart_type_clone.clone()),
@@ -75,12 +113,17 @@ pub fn draw_curve_controls(
             }
         }
 
-        // Column 1: Sine Amp
+        // Column 2: Sine Amp
         {
             let param = a;
             let engine = synth_compute_engine.clone();
             let chart_type_clone = chart_type.clone();
-            let slider = nih_plug_egui::egui::Slider::from_get_set(sine_amp_min..=sine_amp_max, move |new_val| {
+            let granularity_max = granularity.value().as_f64();
+            let actual_max = match chart_type {
+                ChartType::Amp => granularity_max.min(sine_amp_max),
+                ChartType::Phase => sine_amp_max, // Phase granularity doesn't affect sine amp for phase
+            };
+            let slider = nih_plug_egui::egui::Slider::from_get_set(sine_amp_min..=actual_max, move |new_val| {
                 if let Some(v) = new_val {
                     setter.begin_set_parameter(param);
                     setter.set_parameter(param, v as f32);
@@ -92,7 +135,7 @@ pub fn draw_curve_controls(
             })
             .suffix(" Sine Amp.");
 
-            let response = cols[1].add(slider);
+            let response = cols[2].add(slider);
             if response.drag_stopped() {
                 if curve.value() == CurveType::Sine {
                     engine.fill_sin_curve(idx, chart_type_clone.clone());
@@ -101,7 +144,7 @@ pub fn draw_curve_controls(
             }
         }
 
-        // Column 2: Sine Freq
+        // Column 3: Sine Freq
         {
             let param = b;
             let engine = synth_compute_engine.clone();
@@ -118,7 +161,7 @@ pub fn draw_curve_controls(
             })
             .suffix(" Sine Freq.");
 
-            let response = cols[2].add(slider);
+            let response = cols[3].add(slider);
             if response.drag_stopped() {
                 if curve.value() == CurveType::Sine {
                     engine.fill_sin_curve(idx, chart_type_clone.clone());
@@ -127,12 +170,12 @@ pub fn draw_curve_controls(
             }
         }
 
-        // Column 3: Curve Type Combo
+        // Column 4: Curve Type Combo
         {
             let combo_id = format!("{:?}_curve_type_combo_{}", chart_type, idx);
             nih_plug_egui::egui::ComboBox::from_id_salt(combo_id)
                 .selected_text(format!("{:?}", curve.value()))
-                .show_ui(&mut cols[3], |ui| {
+                .show_ui(&mut cols[4], |ui| {
                     for &variant in CurveType::VARIANTS.iter() {
                         if ui
                             .selectable_label(
@@ -161,7 +204,8 @@ pub fn draw_curve_controls(
                     }
                 });
         }
-        // Column 4: Enable Checkbox
+
+        // Column 5: Enable Checkbox
         {
             // We need to let the lock out of the scope in order to avoid deadlock when calling params_changed_action
             let new_enabled = {
@@ -177,7 +221,7 @@ pub fn draw_curve_controls(
                         .lock()
                         .unwrap(),
                 };
-                let checkbox = cols[4].checkbox(&mut enabled[idx], "Enabled");
+                let checkbox = cols[5].checkbox(&mut enabled[idx], "Enabled");
                 if checkbox.changed() {
                     let new_val = enabled[idx];
                     Some(new_val)
