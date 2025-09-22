@@ -51,7 +51,7 @@ mod tests {
 
     #[test]
     fn test_audio_constants() {
-        assert_eq!(NUM_HARMONICS, 32);
+        assert_eq!(NUM_HARMONICS, 64);
         assert_eq!(NUM_KEYS, 88);
     }
 
