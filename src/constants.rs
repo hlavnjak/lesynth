@@ -44,6 +44,26 @@ pub static LABEL_FONT_SIZE: f32 = 12.0;
 
 // Audio Processing Constants
 pub const TWO_PI: f32 = 2.0 * PI;
+pub const SAMPLE_RATE: f64 = 44100.0;
+pub const NYQUIST_FREQUENCY: f64 = SAMPLE_RATE / 2.0;
+
+/// Calculate the maximum usable harmonic number for a given piano key
+/// to prevent aliasing (harmonic frequency must be below Nyquist frequency)
+pub fn max_harmonic_for_key(key: usize) -> usize {
+    if key >= NUM_KEYS {
+        return 0;
+    }
+
+    // Calculate the fundamental frequency for the given key
+    // A0 (key 0) is 27.5 Hz and each key increases by the factor 2^(1/12)
+    let fundamental_freq = 27.5 * 2f64.powf(key as f64 / 12.0);
+
+    // Calculate maximum harmonic number that stays below Nyquist frequency
+    let max_harmonic = (NYQUIST_FREQUENCY / fundamental_freq).floor() as usize;
+
+    // Clamp to available harmonics
+    max_harmonic.min(NUM_HARMONICS)
+}
 
 #[cfg(test)]
 mod tests {
@@ -107,5 +127,30 @@ mod tests {
     fn test_gui_constants() {
         assert_eq!(LABEL_FONT_SIZE, 12.0);
         assert!(LABEL_FONT_SIZE > 0.0);
+    }
+
+    #[test]
+    fn test_max_harmonic_for_key() {
+        // Test lower keys - should allow many harmonics
+        let low_key_max = max_harmonic_for_key(0); // A0 = 27.5 Hz
+        assert!(low_key_max > 50, "Low keys should allow many harmonics, got {}", low_key_max);
+
+        // Test high keys - should limit harmonics
+        let high_key_max = max_harmonic_for_key(87); // C8 = ~4186 Hz
+        assert!(high_key_max < 10, "High keys should limit harmonics to prevent aliasing, got {}", high_key_max);
+
+        // Test that higher keys have fewer allowed harmonics
+        let mid_key_max = max_harmonic_for_key(48); // C4 = ~261 Hz
+        assert!(mid_key_max < low_key_max, "Higher keys should have fewer allowed harmonics");
+        assert!(high_key_max < mid_key_max, "Highest keys should have the fewest allowed harmonics");
+
+        // Test boundary condition
+        assert_eq!(max_harmonic_for_key(NUM_KEYS), 0, "Invalid key should return 0");
+    }
+
+    #[test]
+    fn test_sample_rate_constants() {
+        assert_eq!(SAMPLE_RATE, 44100.0);
+        assert_eq!(NYQUIST_FREQUENCY, 22050.0);
     }
 }

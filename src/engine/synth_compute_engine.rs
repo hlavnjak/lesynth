@@ -16,7 +16,7 @@ use std::sync::Arc;
 use std::sync::atomic::Ordering;
 use std::thread;
 use std::time::Duration;
-use crate::constants::{NUM_HARMONICS, NUM_OF_BUCKETS_DEFAULT, TWO_PI, NUM_KEYS};
+use crate::constants::{NUM_HARMONICS, NUM_OF_BUCKETS_DEFAULT, TWO_PI, NUM_KEYS, max_harmonic_for_key};
 use crate::params::LeSynthParams;
 use super::{ChartType, SharedParams};
 use super::shared_params::BufferState;
@@ -126,13 +126,16 @@ impl SynthComputeEngine {
         let piano_periods = self.shared_params.piano_periods.lock().unwrap();
         let period = piano_periods[key] as usize;
 
+        // Calculate maximum usable harmonic for this key to prevent aliasing
+        let max_harmonic = max_harmonic_for_key(key);
+
         let mut sound = Vec::new();
         for bucket in 0..ampl_data_normalized[0].len() {
             for t in 0..period {
                 let mut sample = 0.0;
                 let harmonic_ampl_enabled = self.shared_params.harmonic_ampl_enabled.lock().unwrap();
                 let harmonic_phase_enabled = self.shared_params.harmonic_phase_enabled.lock().unwrap();
-                for n in 0..num_harmonics {
+                for n in 0..num_harmonics.min(max_harmonic) {
                     let amp = ampl_data_normalized[n][bucket];
                     if !harmonic_ampl_enabled[n] || amp == 0.0 {
                         continue;
@@ -150,8 +153,8 @@ impl SynthComputeEngine {
         }
         
         let elapsed = start_time.elapsed();
-        log::trace!("assemble_buffer_for_key(key={}) took: {:?} (period={}, total_samples={})", 
-                 key, elapsed, piano_periods[key], sound.len());
+        log::trace!("assemble_buffer_for_key(key={}) took: {:?} (period={}, total_samples={}, max_harmonic={}/{})",
+                 key, elapsed, piano_periods[key], sound.len(), max_harmonic, num_harmonics);
         
         sound
     }
@@ -317,6 +320,9 @@ impl SynthComputeEngine {
             *shared_params.normalization_needed.lock().unwrap() = false;
         }
         
+        // Calculate maximum usable harmonic for this key to prevent aliasing
+        let max_harmonic = max_harmonic_for_key(key);
+
         // Copy all required data once and release locks immediately to avoid blocking GUI
         let (num_harmonics, ampl_data_copy, phase_data_copy, harmonic_ampl_enabled_copy, harmonic_phase_enabled_copy, period) = {
             let ampl_data_normalized = shared_params.amplitude_data_normalized.lock().unwrap();
@@ -352,7 +358,7 @@ impl SynthComputeEngine {
             
             for t in 0..period {
                 let mut sample = 0.0;
-                for n in 0..num_harmonics {
+                for n in 0..num_harmonics.min(max_harmonic) {
                     let amp = ampl_data_copy[n][bucket];
                     if !harmonic_ampl_enabled_copy[n] || amp == 0.0 {
                         continue;
@@ -370,8 +376,8 @@ impl SynthComputeEngine {
         }
         
         let elapsed = start_time.elapsed();
-        log::trace!("async compute_buffer_for_key(key={}) took: {:?} (period={}, total_samples={})", 
-                 key, elapsed, period, sound.len());
+        log::trace!("async compute_buffer_for_key(key={}) took: {:?} (period={}, total_samples={}, max_harmonic={}/{})",
+                 key, elapsed, period, sound.len(), max_harmonic, num_harmonics);
         
         sound
     }
