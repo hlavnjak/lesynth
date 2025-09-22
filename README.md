@@ -8,7 +8,7 @@ Demo GIF file with a better quality can be found in the [releases page](https://
 
 ## Features
 
-- **32 Harmonics**: Significant control over amplitude and phase for each harmonic - constant and sine curve type fully customizable by GUI elements 
+- **64 Harmonics**: Significant control over amplitude and phase for each harmonic - constant and sine curve type fully customizable by GUI elements
 - **Real-time Visualization**: Interactive plots showing harmonic data and assembled waveforms
 - **Piano Keyboard Interface**: Click-to-play virtual piano keyboard
 - **Polyphonic Synthesis**: Multiple voice support with automatic gain scaling

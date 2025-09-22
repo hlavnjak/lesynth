@@ -31,7 +31,6 @@ pub fn draw_curve_controls(
     sine_amp_min: f64,
     sine_amp_max: f64,
 ) {
-    ui.label(format!("{:?}:", chart_type));
     ui.columns(5, |cols| {
         let (offset, a, b, curve, granularity) = match chart_type {
             ChartType::Amp => (

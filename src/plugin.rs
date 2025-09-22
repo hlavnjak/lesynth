@@ -92,7 +92,6 @@ impl Plugin for LeSynth {
                             fade_out_active: false,
                             fade_out_pos: 0,
                         });
-                        // IMPORTANT: do NOT call update_plotted_mix() from here (audio thread).
                     }
                 }
                 NoteEvent::NoteOff { note, .. } => {
@@ -103,7 +102,6 @@ impl Plugin for LeSynth {
                             v.fade_out_active = true;
                             v.fade_out_pos = 0;
                         }
-                        // IMPORTANT: do NOT call update_plotted_mix() from here.
                     }
                 }
                 _ => {}
@@ -249,8 +247,8 @@ impl Plugin for LeSynth {
                             .show(ui, |ui| {
                                 for (idx, harmonic) in synth_params.harmonics.iter().enumerate() {
                                     ui.label(format!("Parameters for {}th harmonic:", idx + 1));
-
-                                    ui.label(format!("Amplitude:"));
+                                    ui.add_space(15.0);
+                                    ui.label(format!("Amplitude Chart:"));
                                     draw_curve_controls(
                                         ui,
                                         idx,
@@ -265,6 +263,7 @@ impl Plugin for LeSynth {
                                         MAX_AMP_SINE_AMP,
                                     );
 
+                                    ui.label(format!("Phase Chart:"));
                                     draw_curve_controls(
                                         ui,
                                         idx,
@@ -279,7 +278,6 @@ impl Plugin for LeSynth {
                                         MAX_PHASE_SINE_AMP,
                                     );
 
-                                    ui.label(format!("Phase: "));
                                     ui.separator();
                                 }
                             });

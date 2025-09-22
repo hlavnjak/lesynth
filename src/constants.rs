@@ -15,7 +15,7 @@
 use std::f32::consts::PI;
 
 // Audio Constants
-pub const NUM_HARMONICS: usize = 32;
+pub const NUM_HARMONICS: usize = 64;
 pub const NUM_KEYS: usize = 88;
 
 // Parameter Defaults and Ranges
