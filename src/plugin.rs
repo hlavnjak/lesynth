@@ -48,7 +48,7 @@ impl Plugin for LeSynth {
     const VENDOR: &'static str = "Jakub Hlavnicka";
     const URL: &'static str = "https://donothaveany.com";
     const EMAIL: &'static str = "hlavnickajakub@gmail.com";
-    const VERSION: &'static str = "1.0.0";
+    const VERSION: &'static str = "1.1.0";
     const MIDI_INPUT: MidiConfig = MidiConfig::Basic;
 
     const AUDIO_IO_LAYOUTS: &'static [AudioIOLayout] = &[AudioIOLayout {
